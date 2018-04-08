@@ -144,7 +144,7 @@
 			summarization = JSON.parse(summarization.responseText)
 			console.log(summarization)
 			var class_analysis = new XMLHttpRequest()
-			class_analysis.open("GET", "http://api.meaningcloud.com/class-1.1?key=334e39b985c243ed886b208ed3746459&of=json&lang=en&ilang=en&txt=" + info + "&model=IPTC_en&tt=a&uw=y", false)
+			class_analysis.open("GET", "https://api.meaningcloud.com/class-1.1?key=334e39b985c243ed886b208ed3746459&of=json&lang=en&ilang=en&txt=" + info + "&model=IPTC_en&tt=a&uw=y", false)
 			class_analysis.send()
 			classification = JSON.parse(class_analysis.responseText)
 			console.log(classification)
