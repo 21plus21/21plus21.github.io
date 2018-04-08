@@ -1,0 +1,227 @@
+<!DOCTYPE HTML >
+<html>
+
+<head>
+	<title>Project 42</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+	<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css"  babakshay loves baru/><![endif]-->
+	<style>
+		.right {
+			position: relative;
+			right: -1000px;
+			top: 100px;
+		}
+
+		ul {
+			list-style-type: none;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- Wrapper -->
+	<div id="wrapper">
+
+		<!-- Header -->
+		<header id="header">
+			<div class="inner">
+
+				<!-- Logo -->
+				<a href="index.html" class="logo">
+					<span class="symbol"><img src="images/logo.svg" alt="" /></span><span class="title">Project 42</span>
+				</a>
+
+				<!-- Nav -->
+				<nav>
+					<ul>
+						<li><a href="#menu">Menu</a></li>
+					</ul>
+				</nav>
+
+			</div>
+		</header>
+
+		<!-- Menu -->
+		<nav id="menu">
+			<h2>Menu</h2>
+			<ul>
+				<li><a href="index.html">Home</a></li>
+
+			</ul>
+		</nav>
+
+		<!-- Main -->
+		<div id="main">
+			<div class="inner">
+				<header>
+					<h1>Project 42<br />
+					</h1>
+					<section>
+						<h2>Enter Text</h2>
+
+						<div class="field">
+							<textarea name="message" id="message" placeholder="Text" style="height:300px"></textarea>
+						</div>
+						<ul class="actions">
+							<li><input type="submit" onclick="callAPI('message','text')" value="Send" class="special" /></li>
+						</ul>
+					</section>
+
+
+			</div>
+			</article>
+			</section>
+		</div>
+
+
+		<!-- Footer -->
+		<footer id="footer">
+			<div class="inner">
+
+				<ul id="results">
+					<h3> Summary </h3>
+					<li id="summary">
+
+					</li>
+					<br>
+					<h3> Sentiment </h3>
+					<li id="sentiment">
+
+					</li>
+					<h3> Classification </h3>
+					<li id="classification">
+
+						<li>
+							<li id="concepts">
+								<br>
+								<h3> High Usage Words  </h3>
+
+								<ul id="concept_list"> </ul>
+								<canvas id="concept_graph"> </canvas>
+
+								<!--<h3> Repeatedly Used Names </h3>
+								 <ul id="entity_list"> </ul>
+								<canvas id="people_graph"> </canvas>!-->
+							</li>
+
+				</ul>
+			</div>
+		</footer>
+
+	</div>
+
+	<!-- Scripts -->
+	<script type="text/javascript">
+		var array_info;
+		var sen;
+		//var canvas = document.getElementById('people_graph')
+		var banvas = document.getElementById('concept_graph')
+
+		//var ctx = canvas.getContext("2d")
+		var btx = banvas.getContext("2d")
+
+		function callAPI(id, type) {
+			//ctx.clearRect(0, 0, canvas.width, canvas.height);
+			btx.clearRect(0,0,banvas.width, banvas.height)
+			var topic_extraction = new XMLHttpRequest()
+			var info = document.getElementById(id).value
+			topic_extraction.open('GET', "https://api.meaningcloud.com/topics-2.0?key=334e39b985c243ed886b208ed3746459&of=json&lang=en&ilang=en&txt=" + info + "&tt=a&uw=y", false)
+			topic_extraction.send();
+			var concepts = JSON.parse(topic_extraction.responseText)
+			console.log(concepts)
+			var sentiment_analysis = new XMLHttpRequest()
+			sentiment_analysis.open("GET", "http://api.meaningcloud.com/sentiment-2.1?key=334e39b985c243ed886b208ed3746459&of=json&lang=en&ilang=en&txt=" + info + "&tt=a&uw=y", false)
+			sentiment_analysis.send()
+			sentiment = JSON.parse(sentiment_analysis.responseText)
+			console.log(sentiment)
+			var summarization = new XMLHttpRequest()
+			summarization.open("GET", "http://api.meaningcloud.com/summarization-1.0?key=334e39b985c243ed886b208ed3746459&of=json&lang=en&ilang=en&txt=" + info + "&sentences=4&tt=a&uw=y", false)
+			summarization.send()
+			summarization = JSON.parse(summarization.responseText)
+			console.log(summarization)
+			var class_analysis = new XMLHttpRequest()
+			class_analysis.open("GET", "http://api.meaningcloud.com/class-1.1?key=334e39b985c243ed886b208ed3746459&of=json&lang=en&ilang=en&txt=" + info + "&model=IPTC_en&tt=a&uw=y", false)
+			class_analysis.send()
+			classification = JSON.parse(class_analysis.responseText)
+			console.log(classification)
+			array_info = [concepts, sentiment, summarization, classification]
+			var people_array = []
+			var people_data = []
+			var concept_array = []
+			var concept_data = []
+			for (var i = 0; i <= 4; i++) {
+				try {
+				people_array.push(concepts.entity_list[i].variant_list[0].form)
+				console.log(concepts.entity_list[i].variant_list)
+				people_data.push(concepts.entity_list[i].variant_list.length)
+				concept_array.push(concepts.concept_list[i].variant_list[0].form)
+				concept_data.push(concepts.concept_list[i].variant_list.length)
+			}
+			catch(err) {
+				console.log("error: " + err)
+			}
+
+				//document.getElementById("concept_list").innerHTML += "<li>  " + concepts.concept_list[i].form + " is used " + concepts.concept_list[i].variant_list.length + " times. </li>"
+				//document.getElementById("entity_list").innerHTML += "<li>  " + concepts.entity_list[i].variant_list[0].form + " is used " + concepts.entity_list[i].variant_list.length + " times. </li>"
+
+		}
+			console.log(concept_array)
+			data_C = {
+				labels: concept_array,
+				datasets: [{
+					label: "Usage Rate",
+					backgroundColor: 'rgb(255, 99, 132)',
+					borderColor: 'rgb(255, 99, 132)',
+					data: concept_data
+				}]
+			}
+			var conceptChart = new Chart(btx, {
+				type: 'bar',
+				data: data_C
+			});
+
+			console.log(people_array)
+			data_P = {
+				labels: people_array,
+				datasets: [{
+					label: "Usage of People",
+					backgroundColor: 'rgb(255, 99, 132)',
+					borderColor: 'rgb(255, 99, 132)',
+					data: people_data
+				}]
+			}
+			/*
+			var peopleChart = new Chart(ctx, {
+				type: 'bar',
+				data: data_P
+			});*/
+			if(sentiment.score_tag == "P"){
+				sen = "positive"
+			}
+			else if (sentiment.score_tag == "N"){
+				sen = "negative"
+			}
+			else {
+				sen = "neutral"
+			}
+			document.getElementById("sentiment").innerHTML = "<ul> <li> <strong> Sentiment </strong> : " + sen + " </li> <li> <strong> Agreement </strong> : " + sentiment.agreement.toLowerCase() + " </li> <li> <strong> Irony </strong> : " + sentiment.irony.toLowerCase() + " </li> <li> <strong> Subjectivity </strong> : " + sentiment.subjectivity.toLowerCase() + "</li> </ul> "
+			document.getElementById("summary").innerHTML =  summarization.summary
+			document.getElementById("classification").innerHTML = "Genre(s): " + classification.category_list[0].label
+
+		}
+	</script>
+
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/skel.min.js"></script>
+	<script src="assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="assets/js/main.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+	<!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>!-->
+</body>
+
+</html>
